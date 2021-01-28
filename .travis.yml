@@ -17,8 +17,41 @@ matrix:
           - llvm-toolchain-bionic-8
         packages:
           - clang-format-8
+  - name: "lint check"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    compiler: gcc
+    env: MAKE_TARGET=format-verify PATH="/usr/lib/llvm-8/bin:$PATH"
+    addons:
+      apt:
+        sources:
+          - llvm-toolchain-bionic-8
+        packages:
+          - clang-format-8
   - name: "make debug (linux/gcc)"
     os: linux
+    compiler: gcc
+    env: BUILD_TYPE=Debug IS_NOTIFICATION=1
+    addons: &core_apt_addons
+      apt:
+        packages:
+        - build-essential
+        - cmake
+        - curl
+        - git
+        - libcap-dev
+        - libcurl4-openssl-dev
+        - libuv1-dev
+        - ninja-build
+        - libsodium-dev
+        - libsystemd-dev
+  - name: "make debug (linux/gcc)"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
     compiler: gcc
     env: BUILD_TYPE=Debug IS_NOTIFICATION=1
     addons: &core_apt_addons
@@ -39,8 +72,25 @@ matrix:
     compiler: gcc
     env: BUILD_TYPE=Release
     addons: *core_apt_addons
+  - name: "make release (linux/gcc)"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    compiler: gcc
+    env: BUILD_TYPE=Release
+    addons: *core_apt_addons
   - name: "make release (old linux/gcc)"
     os: linux
+    dist: xenial
+    compiler: gcc
+    env: BUILD_TYPE=Release
+    addons: *core_apt_addons
+  - name: "make release (old linux/gcc)"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
     dist: xenial
     compiler: gcc
     env: BUILD_TYPE=Release
@@ -50,32 +100,28 @@ matrix:
     compiler: clang
     env: BUILD_TYPE=Debug
     addons: *core_apt_addons
+  - name: "make debug (linux/clang)"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    compiler: clang
+    env: BUILD_TYPE=Debug
+    addons: *core_apt_addons
   - name: "make release (linux/clang)"
     os: linux
     compiler: clang
     env: BUILD_TYPE=Release
     addons: *core_apt_addons
-  - name: "make debug (macOS/clang)"
-    os: osx
-    env: BUILD_TYPE=Debug PATH="/usr/local/opt/ccache/libexec:$PATH"
-  - name: "make release (macOS/clang)"
-    os: osx
-    env: BUILD_TYPE=Release PATH="/usr/local/opt/ccache/libexec:$PATH"
-  - name: "make release (linux/gcc/arm64)"
-    arch: arm64
-    compiler: gcc
+  - name: "make release (linux/clang)"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    compiler: clang
     env: BUILD_TYPE=Release
     addons: *core_apt_addons
-  - name: "make release (linux/gcc/s390x)"
-    arch: s390x
-    compiler: gcc
-    env: BUILD_TYPE=Release
-    addons: *core_apt_addons
-  - name: "make release (linux/gcc/ppc64le)"
-    arch: ppc64le
-    compiler: gcc
-    env: BUILD_TYPE=Release
-    addons: *core_apt_addons
+
 #  - name: "make iOS"
 #    os: osx
 #    env: MAKE_TARGET=ios PATH="/usr/local/opt/ccache/libexec:$PATH"
@@ -112,19 +158,35 @@ matrix:
     dist: xenial
     env: DOCKER_FILE=docker/alpine-windows.Dockerfile
     services: docker
+  - name: "make windows docker image"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    dist: xenial
+    env: DOCKER_FILE=docker/alpine-windows.Dockerfile
+    services: docker
   - name: "gcc trunk"
     os: linux
     dist: xenial
     env: DOCKER_FILE=docker/gcc-trunk.Dockerfile
     services: docker
-  - name: "native windows debug"
-    os: windows
-    env: BUILD_TYPE=Debug
-  - name: "native windows release"
-    os: windows
-    env: BUILD_TYPE=Release
+  - name: "gcc trunk"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
+    dist: xenial
+    env: DOCKER_FILE=docker/gcc-trunk.Dockerfile
+    services: docker
   - name: "windows installer"
     os: linux
+    env: MAKE_TARGET=windows STATIC_LINK=ON DOWNLOAD_SODIUM=ON
+  - name: "windows installer"
+    os: linux
+    arch: arm64-graviton2
+    virt: lxd
+    group: edge
     env: MAKE_TARGET=windows STATIC_LINK=ON DOWNLOAD_SODIUM=ON
   allow_failures:
   - name: "windows installer"
